@@ -80,6 +80,6 @@ import BaseLoading from "../components/BaseLoading.astro";
 - Custom content via slot will replace the default SVG spinner
 
 
-## use
+## Demo
 
-<video src="./video.mov" controls></video>
+![demo](./video.gif)
