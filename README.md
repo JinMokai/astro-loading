@@ -1,43 +1,85 @@
-# Astro Starter Kit: Minimal
+# BaseLoading Component
 
-```sh
-pnpm create astro@latest -- --template minimal
+A simple loading component for Astro applications with View Transitions support. Automatically shows a loading indicator during page navigation.
+
+## Features
+
+- 🔄 Automatic show/hide during Astro page transitions
+- 🎨 Customizable styling via CSS classes
+- 🎯 Custom content support via slots
+- ⚡ Built-in spinner animation
+- 🧹 Automatic cleanup on navigation
+
+## Installation
+
+Place `BaseLoading.astro` in your `src/components/` directory.
+
+## Usage
+
+### Basic Usage
+
+```astro
+---
+import BaseLoading from "../components/BaseLoading.astro";
+---
+
+<BaseLoading />
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+### With Custom Delay
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```astro
+<BaseLoading timeDuration={300} />
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+### With Custom Content
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+```astro
+<BaseLoading>
+  <div class="my-spinner">Loading...</div>
+</BaseLoading>
+```
 
-Any static assets, like images, can be placed in the `public/` directory.
+### With Custom Classes
 
-## 🧞 Commands
+```astro
+<BaseLoading
+  baseLoadingClassName="my-loading"
+  baseBgOverLayClassName="my-overlay"
+  baseContentClassName="my-content"
+/>
+```
 
-All commands are run from the root of the project, from a terminal:
+## Props
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `show` | `boolean` | `true` | Initial visibility (component controls display automatically via JS) |
+| `text` | `string` | `"Loading..."` | Text label (currently unused in component) |
+| `timeDuration` | `number` | - | Delay in milliseconds before showing loader (defaults to 500ms in script) |
+| `baseLoadingClassName` | `string` | - | Additional CSS class for the loading container |
+| `baseBgOverLayClassName` | `string` | - | Additional CSS class for the background overlay |
+| `baseContentClassName` | `string` | - | Additional CSS class for the content container |
 
-## 👀 Want to learn more?
+## How It Works
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+1. Listens to `astro:before-preparation` event to show loader after a delay
+2. Listens to `astro:page-load` event to hide loader when page is ready
+3. Automatically cleans up timeouts on navigation and unload
+4. Uses a global timeout to prevent orphaned loaders on rapid navigation
+
+## Requirements
+
+- Astro 5.x
+- View Transitions enabled (for automatic page transition detection)
+
+## Notes
+
+- The component uses `position: fixed` and covers the entire viewport
+- Background overlay has `pointer-events: none` to allow interaction when needed
+- Custom content via slot will replace the default SVG spinner
+
+
+## use
+
+<video src="./video.mov" controls></video>

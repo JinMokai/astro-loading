@@ -1,0 +1,139 @@
+---
+interface Props {
+    /**
+     * @default true
+     */
+    show?: boolean;
+    /**
+     * @default "Loading..."
+     */
+    text?: string;
+    /**
+     * @desc loading time in milliseconds
+     * @default 500
+     */
+    timeDuration?: number;
+    /**
+     * @desc base loading class
+     */
+    baseLoadingClassName?: string;
+    baseBgOverLayClassName?: string;
+    baseContentClassName?: string;
+}
+
+const {
+    show = true,
+    text = "Loading...",
+    timeDuration,
+    baseLoadingClassName,
+    baseBgOverLayClassName,
+    baseContentClassName,
+} = Astro.props;
+---
+
+{
+    show && (
+        <div class:list={["base-loading", baseLoadingClassName]}>
+            <div class:list={["base-bg-overlay", baseBgOverLayClassName]} />
+            <div class:list={["base-content", baseContentClassName]}>
+                {Astro.slots.has("default") ? (
+                    <slot />
+                ) : (
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="48"
+                        height="48"
+                        viewBox="0 0 24 24">
+                        <path
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-dasharray="16"
+                            stroke-dashoffset="16"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 3c4.97 0 9 4.03 9 9">
+                            <animate
+                                fill="freeze"
+                                attributeName="stroke-dashoffset"
+                                dur="0.2s"
+                                values="16;0"
+                            />
+                            <animateTransform
+                                attributeName="transform"
+                                dur="1.5s"
+                                repeatCount="indefinite"
+                                type="rotate"
+                                values="0 12 12;360 12 12"
+                            />
+                        </path>
+                    </svg>
+                )}
+            </div>
+        </div>
+    )
+}
+
+<style>
+    @layer base {
+        .base-loading {
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            inset: 0;
+            justify-content: center;
+        }
+        .base-bg-overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(255, 255, 244, 0.7);
+            pointer-events: none;
+        }
+        .base-content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+
+<script define:vars={{ timeDuration }}>
+    function changeBaseLoadingDisplay(display) {
+        const baseLoading = document.querySelector(".base-loading");
+        if (!baseLoading) return;
+        baseLoading.style.display = display;
+    }
+
+    document.addEventListener("astro:before-preparation", () => {
+        // Clear previous timeout to prevent orphaned loaders on rapid navigation.
+        if (globalThis.loadingTimeout) {
+            clearTimeout(globalThis.loadingTimeout);
+            globalThis.loadingTimeout = null;
+        }
+
+        // Use a global timeout so it can be cleared across page transitions.
+        globalThis.loadingTimeout = setTimeout(() => {
+            changeBaseLoadingDisplay("flex");
+        }, timeDuration || 500);
+    });
+
+    document.addEventListener("astro:page-load", () => {
+        if (globalThis.loadingTimeout) {
+            clearTimeout(globalThis.loadingTimeout);
+            globalThis.loadingTimeout = null;
+        }
+        changeBaseLoadingDisplay("none");
+    });
+
+    window.addEventListener("unload", () => {
+        if (globalThis.loadingTimeout) {
+            clearTimeout(globalThis.loadingTimeout);
+            globalThis.loadingTimeout = null;
+        }
+    });
+</script>
